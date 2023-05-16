@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+
+
+    {% include 'home/script.html' %}
+    <title>{{coin.name}} ({{coin.symbol}})</title>
+</head>
+
+<body>
+    {% include 'charts/custom_interval.html' %}
+    {% include 'dashboard/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'dashboard/sidenav.html' %}
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="chartjs-size-monitor">
+                    <div class="chartjs-size-monitor-expand">
+                        <div class=""></div>
+                    </div>
+                    <div class="chartjs-size-monitor-shrink">
+                        <div class=""></div>
+                    </div>
+                </div>
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+
+                    <h1 class="h2">
+                        <img src="{% static 'dashboard/img/SVG/' %}{{coin.symbol}}.svg"
+                            style="height: 3.5rem ; width:3.5rem;"></i> {{coin.name}} ({{coin.symbol}})
+                        <p id="id_real_time_price"></p>
+                    </h1>
+
+                    <div class="btn-toolbar mb-2 mb-md-0">
+
+                        <div class="btn-group me-2">
+                            {% include 'charts/buy_modal.html' %}
+                            {% include 'charts/sell_modal.html' %}
+
+                            {% include 'charts/price_alert.html' %}
+                            <button type="button" class="btn btn-warning mx-3" data-toggle="modal"
+                                data-target="#price_alert_modal" id='price_alert_btn'>Set Price Alert</button>
+
+                            <button type="button" class="btn btn-primary " data-toggle="modal"
+                                data-target="#buy_btn" id='buy_btn_btn'>Buy</button>
+                                
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#sell_btn"
+                                style="background-color: orangered;" id="sell_btn_btn">Sell</button>
+                        </div>
+
+                        <div class="btn-group me-3">
+                            <button type="button" id="chart_pattern" class="btn btn-info dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Lines
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                <a class="btn dropdown-item" id='chart_candles'
+                                    onclick="changePattern('candles')">Candles</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="btn dropdown-item" id='chart_lines' onclick="changePattern('lines')">Lines</a>
+                                <div class="dropdown-divider"></div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="button" id="interval" class="btn btn-danger dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                1 min
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                <a class="btn dropdown-item" onclick="changeInterval(60)">1 min</a>
+                                <a class="btn dropdown-item" onclick="changeInterval(60*5)">5 min</a>
+                                <a class="btn dropdown-item" onclick="changeInterval(60*15)">15 min</a>
+                                <a class="btn dropdown-item" onclick="changeInterval(60*30)">30 min</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="btn dropdown-item" onclick="changeInterval(60*60*1)">1 hour</a>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-divider"></div>
+                                <button type="button" class="btn btn-primary  dropdown-item" data-toggle="modal"
+                                    data-target="#id_create_interval_modal">
+                                    Custom Interval
+                                </button>
+                                <div class="dropdown-divider"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="mychart" style="height: 50vh;width: 100%;"></div>
+                <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+                    Launch demo modal
+                  </button> -->
+
+                <!-- Modal -->
+            </main>
+        </div>
+    </div>
+
+
+</body>
+<script src="{% static 'js/draggable_modal.js' %}"></script>
+<script src="{% static 'js/buy_sell_handler.js' %}"></script>
+{% include 'charts/crypto_api_calls.html' %}
+<script src="{% static '/dashboard/js/live_search.js' %}"></script>
+<script src="{% static 'js/modals_utils.js' %}"></script>
+
+</html>

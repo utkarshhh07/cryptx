@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include 'home/script.html' %}
+
+
+    <title>Orders</title>
+</head>
+
+<body>
+
+    {% include 'dashboard/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'dashboard/sidenav.html' %}
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+                <div class="text-center my-4">
+                    <button style="width: 500px; cursor:default; " type="button" class="btn btn-lg btn-secondary">Order
+                        History</button>
+                </div>
+                <hr>
+                <div class="text-center my-4">
+                    <div class="row">
+                        <div class="col-sm">
+                            Any <input type="radio" checked name="mode" value="all">
+                        </div>
+                        <div class="col-sm">
+                            Buy Orders  <input type="radio" name="mode" value="buy">
+                        </div>
+                        <div class="col-sm">
+                            Sell Orders <input type="radio" name="mode" value="sell">
+                        </div>  
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center my-4">
+                    <div class="row">
+                        <div class="col-sm">
+                            Any <input type="radio" checked name="status" value="all">
+                        </div>
+                        <div class="col-sm">
+                            Pending Orders <input type="radio" name="status" value="pending">
+                        </div>
+                        <div class="col-sm">
+                            Executed Orders <input type="radio" name="status" value="executed">
+                        </div>
+                        <div class="col-sm">
+                            Cancelled Orders <input type="radio" name="status" value="cancelled">
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center my-4">
+                    <div class="row">
+                        <div class="col-sm">
+                            Any <input type="radio" checked name="type" value="all">
+                        </div>
+                        <div class="col-sm">
+                            Limit Orders <input type="radio" name="type" value="limit">
+                        </div>
+                        <div class="col-sm">
+                            Market Orders <input type="radio" name="type" value="market">
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center my-4">
+                    <div class="row">
+                        <div class="col-sm">
+                            Filter By Coin Name <input type="text" name="coin_name" id="coin_name">
+                        </div>
+                    </div>
+                </div>
+
+                <table style="cursor: default;" class="my-4 text-center table table-bordered text-white bg_trans2"
+                    border="4" cellpadding="10" cellspacing="5">
+
+                    <tr class="bg-dark" style="height: 60px;">
+                        <th>Order ID</th>
+                        <th>Coin</th>
+                        <th>Quantity</th>
+                        <th>Executed Price</th>
+                        <th>Mode</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Placed Time</th>
+                        <th>Executed Time</th>
+                    </tr>
+                    
+                    {% for order in orders %}
+
+                        {% if order.mode == order.BUY %}
+                            {% if order.order_status == order.PENDING and order.order_type == order.MARKET %}
+                                <tr class="bg-warning pending buy market all {{order.coin.name}}"  style="height:50px;">
+                            {% elif order.order_status == order.PENDING and order.order_type == order.LIMIT %}
+                                <tr class="bg-warning pending buy limit all {{order.coin.name}}"  style="height:50px;">
+                            {% elif order.order_status == order.EXECUTED and order.order_type == order.MARKET %}
+                                <tr class="bg-success executed buy market all {{order.coin.name}}"  style="height:50px;">
+                            {% elif order.order_status == order.EXECUTED and order.order_type == order.LIMIT %}
+                                <tr class="bg-success executed buy limit all {{order.coin.name}}" style="height: 50px;">
+                            {% elif order.order_status == order.CANCELLED and order.order_type == order.MARKET %}
+                                <tr class="bg-secondary cancelled buy market all {{order.coin.name}}" style="height: 50px;">
+                            {% elif order.order_status == order.CANCELLED and order.order_type == order.LIMIT %}
+                                <tr class="bg-secondary cancelled buy limit all {{order.coin.name}}" style="height: 50px;">
+                            {% endif %}
+                                    <td><b>#{{ order.id }}</b></td>
+                                    <td>
+                                        {{ order.coin.name }}
+                                    </td>
+                                    <td>
+                                        {{ order.quantity }}
+                                    </td>
+                                    <td>
+                                        ${{ order.order_price }}
+                                    </td>
+                                    <td>
+                                        BUY
+                                    </td>
+                                    <td>
+                                        {% if order.order_type == order.MARKET %}
+                                            MARKET
+                                        {% else %}
+                                            LIMIT
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.order_status == order.PENDING %}
+                                            PENDING
+                                        {% elif order.order_status == order.EXECUTED %}
+                                            EXECUTED
+                                        {% else %}
+                                            CANCELLED
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ order.placed_time }}
+                                    </td>
+                                    <td>
+                                        {{ order.executed_time }}
+                                    </td>
+                                </tr>
+                        {% else %}
+                        {% if order.order_status == order.PENDING and order.order_type == order.MARKET %}
+                            <tr class="bg-warning pending sell market all {{order.coin.name}}"  style="height:50px;">
+                        {% elif order.order_status == order.PENDING and order.order_type == order.LIMIT %}
+                            <tr class="bg-warning pending sell limit all {{order.coin.name}}"  style="height:50px;">
+                        {% elif order.order_status == order.EXECUTED and order.order_type == order.MARKET %}
+                            <tr class="bg-danger executed sell market all {{order.coin.name}}"  style="height:50px;">
+                        {% elif order.order_status == order.EXECUTED and order.order_type == order.LIMIT %}
+                            <tr class="bg-danger executed sell limit all {{order.coin.name}}"  style="height:50px;">
+                        {% elif order.order_status == order.CANCELLED and order.order_type == order.MARKET %}
+                            <tr class="bg-secondary cancelled sell market all {{order.coin.name}}"  style="height:50px;">
+                        {% elif order.order_status == order.CANCELLED and order.order_type == order.LIMIT %}
+                            <tr class="bg-secondary cancelled sell limit all {{order.coin.name}}"  style="height:50px;">
+                        {% endif %}
+                                    <td><b>#{{ order.id }}</b></td>
+                                    <td>
+                                        {{ order.coin.name }}
+                                    </td>
+                                    <td>
+                                        {{ order.quantity }}
+                                    </td>
+                                    <td>
+                                        ${{ order.order_price }}
+                                    </td>
+                                    <td>
+                                        SELL
+                                    </td>
+                                    <td>
+                                        {% if order.order_type == order.MARKET %}
+                                            MARKET
+                                        {% else %}
+                                            LIMIT
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.order_status == order.PENDING %}
+                                            PENDING
+                                        {% elif order.order_status == order.EXECUTED %}
+                                            EXECUTED
+                                        {% else %}
+                                            CANCELLED
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ order.placed_time }}
+                                    </td>
+                                    <td>
+                                        {{ order.executed_time }}
+                                    </td>
+                                </tr>
+                        {% endif %}
+                    {% endfor %}
+
+                </table>
+
+
+            </main>
+        </div>
+    </div>
+
+
+</body>
+
+<script src="{% static 'dashboard/js/live_search.js' %}"></script>
+
+<script src="{% static 'js/filter_orders.js' %}">
+</script>
+
+</html>

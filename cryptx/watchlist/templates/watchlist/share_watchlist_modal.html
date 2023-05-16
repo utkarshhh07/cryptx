@@ -1,0 +1,32 @@
+
+<div style="color: black;" class="modal fade" id="share_watchlist_modal_{{watchlist.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Share Watchlist - {{watchlist.name}}</h5>
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Shareable Link <input type="text" style="width: 350px;" disabled id="link_{{watchlist.id}}" value='http://127.0.0.1:8000/watchlist/share_watchlist/{{watchlist.id}}'>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary share_link" value='http://127.0.0.1:8000/watchlist/share_watchlist/{{watchlist.id}}'>Copy Link</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+    $(".share_link").on('click',(e)=>{
+        let link = e.target.value;
+        navigator.clipboard.writeText(link);
+        e.target.innerHTML="Copied";
+        setTimeout(()=>{
+            e.target.innerHTML="Copy Link";
+        },4000);
+    })
+</script>
+
+

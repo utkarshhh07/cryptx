@@ -1,0 +1,100 @@
+<script>
+    
+    let coin_list={{coins_qs|safe}};  
+    let last_prices={};
+    let api_key = '97345c0932caf03b68d9c0b6b74dcb79dd5462c903ccd9dfb1784081d07cd539'
+    let prev_day_price={};
+    $(document).ready(function(){
+       // TODO : make a starting call
+        setInterval(() => {
+            changeAllPrices();
+        },2000);
+    });
+
+    function changeAllPrices()
+    {
+        coin_list.forEach(coin => {
+            changeEachCoinPrice(coin);
+        });
+    }
+
+    async function changeEachCoinPrice(coin) {
+        
+        let coin_name = coin.name;
+        let coin_symbol = coin.symbol;
+        let currency_name = "USD";
+    
+        let real_time_url = `https://min-api.cryptocompare.com/data/price?fsym=${coin_symbol}&tsyms=${currency_name}&api_key=${api_key}`;
+        
+        const response = await fetch(real_time_url);
+        let last_price = await getPrevDayPrice(coin_symbol,currency_name);
+        
+        var data = await response.json();
+        let current_price = data.USD;
+        last_price = last_price==-1?current_price:last_price
+        let price_id = "id_price_"+coin_symbol;
+        let price_container = document.getElementById(price_id);
+        price_container.innerHTML="$ "+current_price;
+
+        changeColor(coin_symbol,last_price,current_price,price_container);
+
+        last_prices[coin_symbol]=last_price;
+    }
+
+    function changeColor(coin_symbol,last_price,cur_price,price_container)
+    {
+        if(last_price==cur_price)
+        return;
+
+        let change_id = "id_change_"+coin_symbol;
+        let change_conatiner=document.getElementById(change_id);
+        
+        let diff = cur_price-last_price;
+        diff=diff.toFixed(2);
+
+        if(last_price<=cur_price)
+        {
+            change_conatiner.innerHTML="+"+ diff+'<span style="font-size:20px; font-weight:900;">&#8593;</span>';
+            change_conatiner.style.color="green";
+            price_container.style.color="green";
+        }
+        else
+        {
+            change_conatiner.innerHTML=diff+'<span style="font-size:20px; font-weight:900;">&#8595;</span>';
+            change_conatiner.style.color="red";
+            price_container.style.color="red";
+        }
+    }
+
+    async function getPrevDayPrice(coin_symbol,currency_name){
+        if (prev_day_price[coin_symbol]){
+        
+        return prev_day_price[coin_symbol];
+        
+        }
+        const past_day_url = `https://min-api.cryptocompare.com/data/pricehistorical?fsym=${coin_symbol}&tsyms=${currency_name}&ts=`
+
+        const today = new Date()
+        const yesterday = new Date(today)
+
+        yesterday.setDate(yesterday.getDate() - 1)
+        
+        const time = Math.floor(yesterday.getTime()/1000)
+
+        const url = `${past_day_url}${time}&api_key=${api_key}`
+
+        const response = await fetch(url);
+        let dataRes = await response.json();
+        // console.log(Object.keys([coin_symbol]).length)
+        if(dataRes[coin_symbol]==undefined){
+
+            prev_day_price[coin_symbol]= -1;
+            return prev_day_price[coin_symbol]
+        }
+        console.log(dataRes[coin_symbol])
+         prev_day_price[coin_symbol] = dataRes[coin_symbol][currency_name];
+        
+        return prev_day_price[coin_symbol];
+    }
+
+</script>

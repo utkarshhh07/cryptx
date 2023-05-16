@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    {% include 'home/script.html' %}
+    <title>Crypt-X Open Orders</title>
+</head>
+
+<body>
+    {% include 'dashboard/navbar.html' %}
+    {{ portfolio|json_script:"portfolio" }}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'dashboard/sidenav.html' %}
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+                <table class="table my-5">
+                    <thead>
+                        <tr style="font-size: x-large;">
+                            <th scope="col">Order ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Symbol</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Limit Price</th>
+                            <th scope="col">Mode</th>
+                            <th scope="col">Cancel Order</th>
+                            <th scope="col">Update Order</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       {% for position in positions %}
+                            <tr class="table-primary" id="row_{{position.id}}">
+                                <td style="font-weight: bolder;">#{{position.id}}</td>
+                                <th scope="row">
+                                    <img style="height: 30px; width: 30px;" src="{% static 'dashboard/img/SVG/' %}{{position.coin.symbol}}.svg" alt="">
+                                    <a style="text-decoration: none;color: black;" href="{% url 'coin_chart_page' position.coin.name %}">
+                                        {{position.coin.name}}
+                                    </a>
+                                </th>
+                                <td><b>{{position.coin.symbol}}</b></td>
+
+                                <td style="font-weight: bolder;" id="position_quantity_{{position.id}}">{{position.quantity}}</td>
+                                <td style="font-weight: bolder;" id="position_price_{{position.id}}">{{position.order_price}}</td>
+                                <td style="font-weight: bolder;">
+                                    {% if position.mode == position.BUY %}
+                                        BUY
+                                    {% else %}
+                                        SELL
+                                    {% endif %}
+                                </td>
+                                <td style="font-weight: bolder; text-align: center;">
+                                    <button id="{{position.id}}" class="btn btn-danger cancel-btn">Cancel</button>
+                                </td>
+                                <td style="font-weight: bolder; text-align: center; ">
+                                    {% include 'portfolio/update_modal.html' %}
+                                    <button id="{{position.id}}" type="button" class="btn btn-warning mx-3" data-toggle="modal"
+                                    data-target="#update_modal_{{position.id}}" id='update_btn'>Update</button>
+                                    
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </main>
+        </div>
+    </div>
+</body>
+
+
+<script src="{% static 'dashboard/js/live_search.js' %}"></script>
+<script src="{% static 'js/buy_sell_handler.js' %}"></script>
+
+
+
+</html>

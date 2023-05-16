@@ -1,0 +1,340 @@
+<script>
+   
+   let default_pattern = {
+        lines : 'lines',
+        candles : 'candles',
+    }
+    let fetch_interval;
+    let all_candles = [];
+    let base_candles = [];
+    let reset = 0;
+    let chart;
+    let lineSeries;
+    let coin_symbol = "{{coin.symbol}}";
+    let coin_name = "{{coin.name}}";
+    let hist_min = 10000;
+    let time_interval  = 60 ;
+    let currency_name = "USD"; 
+    let api_key = '97345c0932caf03b68d9c0b6b74dcb79dd5462c903ccd9dfb1784081d07cd539'
+    let real_time_url = `https://min-api.cryptocompare.com/data/price?fsym=${coin_symbol}&tsyms=${currency_name}&api_key=${api_key}`;
+    let backup_url = `https://api.coingecko.com/api/v3/simple/price?ids=${coin_name}&vs_currencies=${currency_name}`
+    let chart_pattern = 'lines'
+    let history_url = `https://min-api.cryptocompare.com/data/v2/histominute?fsym=${coin_symbol}&tsym=${currency_name}&limit=2000&api_key=${api_key}`;
+    const past_day_url = `https://min-api.cryptocompare.com/data/pricehistorical?fsym=${coin_symbol}&tsyms=${currency_name}&ts=`
+    let prev_day_price = 0;
+    let current_price;
+      
+    $(document).ready(
+          function() {
+        
+              
+            var rateP = document.getElementById('rate');
+    
+            chart = LightweightCharts.createChart(document.getElementById('mychart'), {
+                localization: {
+        dateFormat: 'yyyy/MM/dd',
+    },
+            });
+            lineSeries = chart.addLineSeries({
+   
+            });
+            configChart();
+
+            addMultipleHistory(hist_min)
+
+             fetch_interval = setInterval(() => {
+                if(true||base_candles.length > hist_min){
+                addPoint();
+            }
+            }, 1000);
+
+    
+        });
+    async function getPrevDayPrice(){
+        if (prev_day_price != 0)
+        return prev_day_price;
+        const today = new Date()
+        const yesterday = new Date(today)
+
+        yesterday.setDate(yesterday.getDate() - 1)
+        
+        const time = Math.floor(yesterday.getTime()/1000)
+
+        const url = `${past_day_url}${time}&api_key=${api_key}`
+        
+        const response = await fetch(url);
+        const dataRes = await response.json();
+
+        // console.log(dataRes)
+
+        price = dataRes[coin_symbol][currency_name];
+        
+        return price;
+    }
+
+    function customInterval()
+    {
+        let customInterval = document.getElementById('custom_interval').value;
+      
+        changeInterval(60*customInterval);
+    }
+
+    async function changePattern(chartpattern){
+          chart_pattern =  chartpattern
+        document.getElementById('chart_pattern').innerHTML =  document.getElementById('chart_'+chart_pattern).innerHTML
+        
+        if(default_pattern.candles==chart_pattern){
+            all_candles=[]
+            lineSeries.setData([])
+            lineSeries = chart.addCandlestickSeries();
+            lineSeries.applyOptions({
+                lastPriceAnimation: LightweightCharts.LastPriceAnimationMode.Disabled,
+            })
+            changeInterval(time_interval+0.1)
+        }
+        if(default_pattern.lines==chart_pattern){
+            lineSeries.setData([])
+            lineSeries = chart.addLineSeries()
+            configChart()
+            changeInterval(time_interval+0.1)
+            
+        }
+        
+    }
+    // call to get a candle according to chart pattern
+    function getCandle(base_candle){ 
+        if(chart_pattern==default_pattern.lines)return {time:base_candle.time, value:base_candle.close};
+        if(chart_pattern==default_pattern.candles)return {time:base_candle.time,
+            close:base_candle.close,
+            open:base_candle.open,
+            high:base_candle.high,
+            low:base_candle.low
+        }
+    }
+    //--call if chartinterval is changed or chart pattern is changed
+    function changeInterval(interval){
+        if(interval==time_interval)return;
+        else{
+            interval = Math.floor(interval);
+            all_candles = [];
+            for(let i=0;i<base_candles.length;i++){
+                let val= getCandle(base_candles[i]);
+                
+              
+                if(all_candles.length){ 
+                    let last_candle = all_candles[all_candles.length-1];
+                    let curr_time = Math.floor(last_candle.time/interval);
+                    let last_time = Math.floor(val.time/interval); 
+                    if(curr_time!=last_time){
+                        all_candles.push(val);
+                    }else{
+                        if(chart_pattern==default_pattern.candles){
+                        last_candle.high = Math.max(last_candle.high,val.high);
+                        last_candle.low = Math.min(last_candle.low,val.low);
+                        last_candle.close = val.close;   
+                        }
+                        if(chart_pattern==default_pattern.lines)
+                        all_candles[all_candles.length-1] =val;
+                    }
+                }else{
+                    all_candles.push(val);
+                }
+            }
+            time_interval = interval;
+            let interval_button = document.getElementById('interval')
+
+            if(time_interval/3600 < 1)
+            interval_button.innerHTML = Math.floor(time_interval/60)+" min"
+
+            else
+                interval_button.innerHTML = Math.floor(time_interval/3600)+" hrs"
+
+        }
+    }
+
+    function configChart(){
+         lineSeries.applyOptions({
+    color: 'black',
+    lastPriceAnimation: LightweightCharts.LastPriceAnimationMode.Disabled,
+ 
+});
+        chart.applyOptions({
+            
+                priceScale: {
+                    position: 'right',
+                    mode: 0,
+                    borderVisible: true,
+                    borderColor: 'black',
+                    scaleMargins: {
+                        top: 0.30,
+                        bottom: 0.25,
+                    },
+                },
+                timeScale: {
+                    rightOffset: 12,
+                    barSpacing: 10,
+                    // fixLeftEdge: true,
+                    lockVisibleTimeRangeOnResize: true,
+                    rightBarStaysOnScroll: true,
+                    borderVisible: true,
+                    borderColor: 'black',
+                    visible: true,
+                    timeVisible: true,
+                    secondsVisible: false,
+                    tickMarkFormatter: (time, tickMarkType, locale) => {
+                        
+                        let date = new Date(time * 1000);
+                        const year = date.getFullYear()+":"+date.getHours() + ":" + date.getMinutes();
+                        return String(year);
+                    },
+                },
+                crosshair: {
+                    vertLine: {
+                        color: 'Black',
+                        width: 1.7,
+                        style: 1,
+                        visible: true,
+                        labelVisible: true,
+                    
+                    },
+                    horzLine: {
+                        color: 'Black',
+                        width: 1.7,
+                        style: 1,
+                        visible: true,
+                        labelVisible: true,
+                    },
+                    mode: 0,
+                },
+            });
+           
+    }
+  
+    async function setCandles(base_candles,curtime,interval,newCandle,isbase){
+        if(base_candles.length){
+            
+            const last_candle = base_candles[base_candles.length-1];
+            const last_time  = Math.floor(last_candle.time)
+            
+            if(Math.floor(last_time/interval)!=Math.floor(curtime/interval)){
+                if((!isbase)&&chart_pattern==default_pattern.lines){
+                    base_candles.push(newCandle);
+                }
+                if(isbase||chart_pattern==default_pattern.candles){
+                    base_candles.push({
+                        time:curtime,
+                         high:newCandle.value,
+                         low:newCandle.value,
+                         open:newCandle.value,
+                         close:newCandle.value})
+                }   
+                
+            }else{
+                if((!isbase)&&chart_pattern==default_pattern.lines){
+                    base_candles[base_candles.length-1] = newCandle;
+                }
+                if(isbase||chart_pattern==default_pattern.candles){
+                    let last_candle = base_candles[base_candles.length-1]
+                    last_candle.high = Math.max(newCandle.value,last_candle.high);
+                    last_candle.low = Math.min(newCandle.value,last_candle.low);
+                    last_candle.close = newCandle.value;
+                }
+                
+            }
+            }else{
+                if((!isbase)&&chart_pattern==default_pattern.lines){
+                    base_candles.push(newCandle);
+                }
+                if(isbase || chart_pattern==default_pattern.candles){
+                    base_candles.push({
+                        time:curtime,
+                         high:newCandle.value,
+                         low:newCandle.value,
+                         open:newCandle.value,
+                         close:newCandle.value})
+                }   
+            }
+        
+    }
+    async function add_history(i) {
+        
+                const response = await fetch(history_url);
+                var dataRes = await response.json();
+                var data = dataRes.Data.Data;
+                if (data)
+                    for (let i = data.length-1; i >=0 ; i--) {
+                        let candle = data[i];
+                        var newDate = new Date();
+                        var curtime = candle.time;
+                        let newCandle = { 
+                            time: curtime,
+                            open:candle.open,
+                            high : candle.high,
+                            low : candle.low,
+                            close:candle.close
+                        };
+                       
+                        base_candles.unshift(newCandle);
+                        if(chart_pattern==default_pattern.candles)
+                        all_candles.unshift(newCandle);
+                        if(chart_pattern==default_pattern.lines)
+                        all_candles.unshift({time:curtime,value:candle.close});
+                    }
+                time_stamp  = data[0].time;
+                history_url = "https://min-api.cryptocompare.com/data/v2/histominute?fsym=" +
+                coin_symbol + "&tsym=" + currency_name + "&limit=2000" + "&toTs=" + time_stamp+"&api_key="+api_key;
+            }
+    async function addPoint() {
+
+        const response = await fetch(real_time_url);
+        var data = await response.json();
+        // console.log(data)
+        let current_price = data.USD
+        // console.log(current_price)
+        changePrice(current_price);
+
+        var newDate = new Date();
+        var curtime = newDate.getTime() / 1000;
+        curtime = Math.floor(curtime)
+        let newCandle = { time: curtime, value: data.USD };
+        await setCandles(base_candles,curtime,60,newCandle,true);
+        await setCandles(all_candles,curtime,time_interval,newCandle,false);
+        lineSeries.setData(all_candles);
+    }
+    
+async function addMultipleHistory(hist_min){
+    for(let i=0;all_candles.length<=hist_min;i++){
+        await add_history(i);
+    }
+    lineSeries.setData(base_candles)
+
+}
+async function changePrice(cur_price)
+{  
+    last_price = await getPrevDayPrice()
+    // last_price = 0;
+    current_price=cur_price;
+  
+    if(last_price==cur_price)
+    return;
+    
+    let price=document.getElementById("id_real_time_price");
+    let diff = cur_price-last_price;
+    diff=diff.toFixed(3);
+
+    let percent_change = ((diff*100)/last_price).toFixed(3);
+
+    if(last_price<=cur_price)
+    {
+        price.innerHTML=`$${cur_price} (+${diff}) (+${percent_change}%)`;
+        price.style.color="green";
+    }
+    else
+    {
+        price.innerHTML=`$${cur_price} (${diff}) (${percent_change}%)`;
+        price.style.color="red";
+    }
+}
+
+
+</script>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    {% include 'home/script.html' %}
+    <title>Crypt-X Portfolio</title>
+</head>
+
+<body>
+    {% include 'dashboard/navbar.html' %}
+    {{ portfolio|json_script:"portfolio" }}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'dashboard/sidenav.html' %}
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+                <table class="table my-5">
+                    <thead>
+                        <tr style="font-size: x-large;">
+                            <th scope="col">Name</th>
+                            <th scope="col">Symbol</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Average Price</th>
+                            <th scope="col">P&L</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                       {% for holding in portfolio %}
+                            <tr class="table-primary">
+                                <th scope="row">
+                                    <img style="height: 30px; width: 30px;" src="{% static 'dashboard/img/SVG/' %}{{holding.symbol}}.svg" alt="">
+                                    <a style="text-decoration: none;color: black;" href="{% url 'coin_chart_page' holding.name %}">
+                                        {{holding.name}}
+                                    </a>
+                                </th>
+                                <td><b>{{holding.symbol}}</b></td>
+
+                                <td style="font-weight: bolder;" id="id_quantity_{{holding.symbol}}">{{holding.quantity}}</td>
+                                <td style="font-weight: bolder;" id="id_avg_price_{{holding.symbol}}">{{holding.avg_price}}</td>
+                                <td style="font-weight: bolder;" id="id_p&l_{{holding.symbol}}">0</td>
+
+                     
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <hr>
+                <h3 style="float: right; margin-right: 13%;">Total P&L : <span id="total_pl"></span></h3>
+
+            </main>
+        </div>
+    </div>
+</body>
+
+
+<script src="{% static 'dashboard/js/live_search.js' %}"></script>
+<script src="{% static 'js/portfolio_handler.js' %}"></script>
+
+
+
+</html>

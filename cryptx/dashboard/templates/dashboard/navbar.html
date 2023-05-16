@@ -1,0 +1,36 @@
+{% load static %}
+
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+  
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/dashboard"><img src="{% static 'dashboard/img/favicon.ico' %}" width="64px" height="50px" style="margin-right: 25px;left: 0px;"/>Crypt-X</a>
+    <button style="top: 0;right: 0;" class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+
+    <input autocomplete="off" list="search_result" class="form-control form-control-dark w-100" id="search" type="text" placeholder="Search" aria-label="Search">
+    <datalist id="search_result" style="width: 100%;"></datalist>
+    <div class="navbar-nav">
+      <div class="nav-item text-nowrap">
+      <a class="nav-link px-3" ><button type="button" class="btn btn-warning" id="search_btn">Search</button></a>
+      </div>
+    </div>
+
+    <div class="navbar-nav">
+      <div class="nav-item text-nowrap">
+        <a class="nav-link px-3" href="/logout/"><button type="button" class="btn btn-danger">Log Out</button></a>
+      </div>
+    </div>
+</header>
+
+
+{% include 'charts/toast.html' %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+<script src="{% static 'js/buy_sell_handler.js' %}"></script>
+<script src="{% static 'js/desktop_notify.js' %}"></script>
+
+<script>
+
+  const email="{{request.user.email}}";
+
+</script>

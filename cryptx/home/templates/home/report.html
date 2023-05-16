@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    {% include 'home/script.html' %}
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Report</title>
+</head>
+
+<body>
+    <div style="text-align: center;">
+        <h1 style="font-size: 5rem;">Daily Report</h1>
+        <br>
+        <h1>Daily report for our customer <b>{{user.first_name}} {{user.last_name}}</b> on {{date}}</h1>
+    </div>
+    <br><br><br>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <h1>Transaction History</h1>
+                <br>
+                <table style="cursor: default;" class="my-4 text-center table table-bordered text-white bg_trans2"
+                    border="4" cellpadding="10" cellspacing="5">
+
+
+                    <tr class="bg-dark" style="height: 60px;">
+                        <th>Amount</th>
+                        <th>Time</th>
+
+                    </tr>
+
+                    {% for history in transaction_history %}
+                    <tr class="bg-success buy" style="height: 50px;">
+                        <td> $ {{history.money}} </td>
+                        <td>{{history.time}} </td>
+                    </tr>
+                    {% endfor %}
+
+                </table>
+
+
+            </div>
+            <br><br><br>
+            <div class="col-sm">
+                <h1>Order History</h1>
+                <br>
+                <table style="cursor: default;" class="my-4 text-center table table-bordered text-white bg_trans2"
+                    border="4" cellpadding="10" cellspacing="5">
+
+                    <tr class="bg-dark" style="height: 60px;">
+                        <th>Order ID</th>
+                        <th>Coin</th>
+                        <th>Quantity</th>
+                        <th>Executed Price</th>
+                        <th>Mode</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Placed Time</th>
+                        <th>Executed Time</th>
+                    </tr>
+
+                    {% for order in orders %}
+
+                    {% if order.mode == order.BUY %}
+                    {% if order.order_status == order.PENDING and order.order_type == order.MARKET %}
+                    <tr class="bg-warning pending buy market all {{order.coin.name}}" style="height:50px;">
+                        {% elif order.order_status == order.PENDING and order.order_type == order.LIMIT %}
+                    <tr class="bg-warning pending buy limit all {{order.coin.name}}" style="height:50px;">
+                        {% elif order.order_status == order.EXECUTED and order.order_type == order.MARKET %}
+                    <tr class="bg-success executed buy market all {{order.coin.name}}" style="height:50px;">
+                        {% else %}
+                    <tr class="bg-success executed buy limit all {{order.coin.name}}" style="height: 50px;">
+                        {% endif %}
+                        <td><b>#{{ order.id }}</b></td>
+                        <td>
+                            {{ order.coin.name }}
+                        </td>
+                        <td>
+                            {{ order.quantity }}
+                        </td>
+                        <td>
+                            ${{ order.order_price }}
+                        </td>
+                        <td>
+                            BUY
+                        </td>
+                        <td>
+                            {% if order.order_type == order.MARKET %}
+                            MARKET
+                            {% else %}
+                            LIMIT
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.order_status == order.PENDING %}
+                            PENDING
+                            {% else %}
+                            EXECUTED
+                            {% endif %}
+                        </td>
+                        <td style = "font-size: 1rem;">
+                            {{ order.placed_time }}
+                        </td >
+                        <td style = "font-size: 1rem;">
+                            {{ order.executed_time }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    {% if order.order_status == order.PENDING and order.order_type == order.MARKET %}
+                    <tr class="bg-warning pending sell market all {{order.coin.name}}" style="height:50px;">
+                        {% elif order.order_status == order.PENDING and order.order_type == order.LIMIT %}
+                    <tr class="bg-warning pending sell limit all {{order.coin.name}}" style="height:50px;">
+                        {% elif order.order_status == order.EXECUTED and order.order_type == order.MARKET %}
+                    <tr class="bg-danger executed sell market all {{order.coin.name}}" style="height:50px;">
+                        {% else %}
+                    <tr class="bg-danger executed sell limit all {{order.coin.name}}" style="height: 50px;">
+                        {% endif %}
+                        <td><b>#{{ order.id }}</b></td>
+                        <td>
+                            {{ order.coin.name }}
+                        </td>
+                        <td>
+                            {{ order.quantity }}
+                        </td>
+                        <td>
+                            ${{ order.order_price }}
+                        </td>
+                        <td>
+                            SELL
+                        </td>
+                        <td>
+                            {% if order.order_type == order.MARKET %}
+                            MARKET
+                            {% else %}
+                            LIMIT
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.order_status == order.PENDING %}
+                            PENDING
+                            {% else %}
+                            EXECUTED
+                            {% endif %}
+                        </td>
+                        <td style = "font-size: 1rem;">
+                            {{ order.placed_time }}
+                        </td>
+                        <td style = "font-size: 1rem;">
+                            {{ order.executed_time }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+                </table>
+            </div>
+            <!-- <div class="col-sm">
+            One of three columns
+          </div> -->
+        </div>
+    </div>
+
+</body>
+
+</html>

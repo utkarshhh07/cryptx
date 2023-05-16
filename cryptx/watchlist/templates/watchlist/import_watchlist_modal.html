@@ -1,0 +1,65 @@
+
+
+  <div class="modal fade" id="import_watchlist_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Create Watchlist</h5>
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-floating mb-3">
+            <input type="text" required class="shared_link form-control" id="watchlist_label" placeholder="Watchlist Link">
+            <label for="watchlist_label">Watchlist Link</label>
+          </div>
+          <div class="form-floating mb-3">
+            <input type="text" required class="name form-control" id="watchlist_name_label" placeholder="Watchlist Name">
+            <label for="watchlist_name_label">Watchlist Name</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary import_btn">Import</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+<script>
+  $(".import_btn").on('click',()=>{
+    let link = $(".shared_link").val();
+    let name=$(".name").val();
+
+    if(link.length==0 || name.length==0)
+    return;
+
+    // http://127.0.0.1:8000/watchlist/share_watchlist/10 - example
+    
+    let regex1 = /^https:\/\/127.0.0.1:8000\/watchlist\/share_watchlist\/[1-9][0-9]*$/;
+    let regex2 = /^http:\/\/127.0.0.1:8000\/watchlist\/share_watchlist\/[1-9][0-9]*$/;
+
+    let check1=regex1.test(link);
+    let check2=regex2.test(link);
+    if(check1==false && check2==false)
+    {
+      show_toast("Not a valid link");
+      return;
+    }
+
+    $.ajax({
+      url:link,
+      data:{'name':name},
+      success:function(res)
+      {
+        show_toast(res.msg);
+      },
+      error:function(res)
+      {
+        show_toast(res.msg);
+      }
+    })
+
+  })
+</script>

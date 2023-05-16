@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{% load static %}
+	{% include 'home/script.html' %}
+
+	<title>Wallet</title>
+</head>
+
+<body>
+
+	{% include 'dashboard/navbar.html' %}
+	<div class="container-fluid">
+		<div class="row">
+			{% include 'dashboard/sidenav.html' %}
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+				<div class="container">
+					<div class="row align-items-start">
+						<div class="col">
+							<!-- One of three columns -->
+							<br>
+							<h2 style="text-align: center;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;"
+								class="fs-1">Add Money To Wallet</h2>
+							<br>
+							<form style="text-align: center;" action="{% url 'charge' %}" method="post">
+								<input style="border-radius: 1rem;padding: 0.5rem;" type="text" id='amount'
+									name='amount'><br><br>
+								{% csrf_token %}
+								<script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+									data-key="{{ key }}" data-description="Add Money To Wallet" data-amount=""
+									data-locale="auto"></script>
+							</form>
+							<br><br>
+							<p style="text-align: center;" class="fs-5">
+								Your Current Balance : $ {{ money }}
+							</p>
+						</div>
+						<div class="col">
+							<!-- One of three columns -->
+							<br>
+							<p class="fs-1" style="text-align: center;">
+
+							<p class="fs-1" style="text-align: center;font-family: 'Times New Roman', Times, serif;">
+								Transaction History
+							</p>
+
+
+							<table style="cursor: default;"
+								class="my-4 text-center table table-bordered text-white bg_trans2" border="4"
+								cellpadding="10" cellspacing="5">
+
+								<tr class="bg-dark" style="height: 60px;">
+									<th>Amount</th>
+									<th>Time</th>
+								</tr>
+
+								{% for x in history %}
+
+								<tr class="bg-success buy" style="height: 50px;">
+
+									<td> $ {{ x.money}} </td>
+
+									<td> {{x.time}} </td>
+
+								</tr>
+
+								{% endfor %}
+
+
+							</table>
+
+
+							</p>
+						</div>
+						<!-- <div class="col">
+                        One of three columns
+                      </div> -->
+					</div>
+
+			</main>
+		</div>
+	</div>
+
+
+</body>
+
+<script src="{% static 'dashboard/js/live_search.js' %}"></script>
+
+
+</html>
